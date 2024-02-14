@@ -136,7 +136,6 @@ protected:
     thread_local read_set_t read_set;
     return read_set;
   }
-#endif
 
 // 追加
 #if defined(TAKADA)
@@ -158,6 +157,7 @@ protected:
       return validated_read_set;
     }
 
+#endif
 #endif
 
 
