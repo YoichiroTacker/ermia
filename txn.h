@@ -59,6 +59,7 @@ public:
   typedef std::vector<dbtuple *> read_set_t;
 #if defined(TAKADA)
     typedef std::vector<dbtuple *> validated_read_set_t; // 追加
+    typedef std::vector<dbtuple *> retrying_task_set_t;
 #endif
 #endif
 
@@ -155,6 +156,23 @@ protected:
     {
       thread_local read_set_t validated_read_set;
       return validated_read_set;
+    }
+
+    inline read_set_t &GetRetryingTaskSet() {
+    thread_local read_set_t retrying_task_set;
+    return retrying_task_set;
+  }
+
+    inline void add_to_retrying_task_set(dbtuple *entry)
+    {
+      auto &retrying_set = GetRetryingTaskSet();
+      for (uint32_t i = 0; i < retrying_set.size(); ++i)
+      {
+        auto &r = write_set[i];
+        ASSERT(w.entry);
+        ASSERT(w.entry != entry);
+      }
+      GetRetryingTaskSet().emplace_back(entry);
     }
 
 #endif

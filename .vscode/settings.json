@@ -1,5 +1,28 @@
 {
     "files.associations": {
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "compare": "cpp",
+        "cstdint": "cpp",
+        "format": "cpp",
+        "__split_buffer": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "vector": "cpp",
+        "*.tcc": "cpp",
+        "__hash_table": "cpp",
+        "__tree": "cpp",
+        "atomic": "cpp",
+        "ios": "cpp",
+        "map": "cpp",
+        "set": "cpp",
+        "string": "cpp",
+        "system_error": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "dense_hash_map": "cpp",
+        "dense_hash_set": "cpp",
+        "sparse_hash_map": "cpp",
+        "sparse_hash_set": "cpp",
+        "sparsetable": "cpp"
     }
 }
