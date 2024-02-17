@@ -23,6 +23,12 @@
         "dense_hash_set": "cpp",
         "sparse_hash_map": "cpp",
         "sparse_hash_set": "cpp",
-        "sparsetable": "cpp"
+        "sparsetable": "cpp",
+        "__node_handle": "cpp",
+        "array": "cpp",
+        "queue": "cpp",
+        "span": "cpp",
+        "stack": "cpp",
+        "string_view": "cpp"
     }
 }

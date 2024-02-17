@@ -204,11 +204,8 @@ rc_t transaction::commit() {
 // 追加部分
 #if defined(TAKADA)
 void transaction::ssn_retry(){
-    while(volatile_read(xc->state)==TXN::TXN_ABRTD){
-        if (!GetValidatedReadSet().empty())
-          GetValidatedReadSet().clear();
-        if(!GetRetryingTaskSet().empty())
-          GetRetryingTaskSet().clear();
+    rc_t rc=RC_ABORT_SERIAL;
+    while(rc!=RC_TRUE){
         for (uint32_t i = 0; i < read_set.size(); ++i){
           auto &r = read_set[i];
           if (&r->sstamp == NULL_PTR)
@@ -216,6 +213,7 @@ void transaction::ssn_retry(){
           else
             add_to_retrying_task_set(&r);
         }
+      rc=RC_INVALID;
       ensure_active();
       initialize_read_write();
       auto &read_set = GetValidatedReadSet();
@@ -224,7 +222,7 @@ void transaction::ssn_retry(){
         if(&r->sstamp==NULL_PTR)
           serial_register_reader_tx(tuple->readers_bitmap); 
         else{
-          ssn_read(&r);
+          rc=ssn_read(&r);
           read_set.erase(read_set.begin() + i);
           --i;
         }
@@ -232,10 +230,16 @@ void transaction::ssn_retry(){
       &read_set = GetRetryingTaskSet();
       for (uint32_t i = 0; i < read_set.size(); ++i) {
         auto &r = read_set[i];
-        ssn_read(&r);
+        rc=ssn_read(&r);
+        read_set.erase(read_set.begin() + i);
+          --i;
       }
     }
-    ASSERT(state()==TXN::TXN_ACTIVE);
+    ASSERT(GetValidatedReadSet().empty() and GetRetryingTaskSet().empty());
+    ALWAYS_ASSERT(state() == TXN::TXN_ACTIVE);
+    volatile_write(xc->state, TXN::TXN_COMMITTING);
+    ASSERT(log);
+    xc->end = log->pre_commit().offset();
     return;
   }
 #endif
