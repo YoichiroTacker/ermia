@@ -5,14 +5,14 @@
 #include "dbcore/serial.h"
 #include "ermia.h"
 
-#define SSN_RETRY_AND_GOTO_RETRY()
-do {
-    if(is_read_only()){
-      ssn_retry();
-      goto RETRY;
-    }else{
-       return rc_t{RC_ABORT_SERIAL};
-    }
+#define SSN_RETRY_AND_GOTO_RETRY() \
+do {  \
+    if(is_read_only()){ \
+      ssn_retry();  \
+      goto RETRY; \
+    }else{  \
+       return rc_t{RC_ABORT_SERIAL};  \
+    } \
 } while(0)
 
 namespace ermia {
