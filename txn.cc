@@ -7,12 +7,12 @@
 
 #define SSN_RETRY_AND_GOTO_RETRY()
 do {
-    #ifdef TAKADA
     if(is_read_only()){
       ssn_retry();
       goto RETRY;
-    }else
-#endif
+    }else{
+       return rc_t{RC_ABORT_SERIAL};
+    }
 } while(0)
 
 namespace ermia {
@@ -311,7 +311,9 @@ RETRY:
       // overwriter already fully committed/aborted or no overwriter at all
       xc->set_sstamp(successor_clsn.offset());
       if (not ssn_check_exclusion(xc)) {
+#ifdef TAKADA
         SSN_RETRY_AND_GOTO_RETRY();
+#endif
         return rc_t{RC_ABORT_SERIAL};
       }
     } else {
@@ -398,7 +400,9 @@ RETRY:
         }
         xc->set_sstamp(s);
         if (not ssn_check_exclusion(xc)) {
+#ifdef TAKADA
           SSN_RETRY_AND_GOTO_RETRY();
+#endif
           return rc_t{RC_ABORT_SERIAL};
         }
       }
@@ -489,7 +493,9 @@ RETRY:
           }
           xc->set_pstamp(last_cstamp);
           if (not ssn_check_exclusion(xc)) {
+#ifdef TAKADA
               SSN_RETRY_AND_GOTO_RETRY();
+#endif
               return rc_t{RC_ABORT_SERIAL};
           }
         }  // otherwise we will catch the tuple's xstamp outside the loop
@@ -557,7 +563,9 @@ RETRY:
             // we succeeded setting the read-mostly tx's sstamp
             xc->set_pstamp(last_cstamp);
             if (not ssn_check_exclusion(xc)) {
+#ifdef TAKADA
                 SSN_RETRY_AND_GOTO_RETRY();
+#endif
                 return rc_t{RC_ABORT_SERIAL};
             }
           }
@@ -577,7 +585,9 @@ RETRY:
             }
             xc->set_pstamp(TXN::serial_get_last_read_mostly_cstamp(xid_idx));
             if (not ssn_check_exclusion(xc)) {
+#ifdef TAKADA
                 SSN_RETRY_AND_GOTO_RETRY();
+#endif
                 return rc_t{RC_ABORT_SERIAL};
             }
           } else {
@@ -586,7 +596,9 @@ RETRY:
             if (TXN::spin_for_cstamp(rxid, reader_xc) == TXN::TXN_CMMTD) {
               xc->set_pstamp(reader_end);
               if (not ssn_check_exclusion(xc)) {
+#ifdef TAKADA
                 SSN_RETRY_AND_GOTO_RETRY();
+#endif
                 return rc_t{RC_ABORT_SERIAL};
               }
             }
@@ -607,7 +619,9 @@ RETRY:
     // Still need to re-read xstamp in case we missed any reader
     xc->set_pstamp(volatile_read(overwritten_tuple->xstamp));
     if (not ssn_check_exclusion(xc)) {
+#ifdef TAKADA
         SSN_RETRY_AND_GOTO_RETRY();
+#endif
         return rc_t{RC_ABORT_SERIAL};
     }
   }
@@ -617,7 +631,9 @@ RETRY:
   }
 
   if (not ssn_check_exclusion(xc)){
+#ifdef TAKADA
     SSN_RETRY_AND_GOTO_RETRY();
+#endif
     return rc_t{RC_ABORT_SERIAL};
   }
   if (config::phantom_prot && !MasstreeCheckPhantom()) {
@@ -1569,7 +1585,7 @@ rc_t transaction::ssn_read(dbtuple *tuple) {
     if (xc->sstamp > tuple_sstamp.offset() or xc->sstamp == 0)
       xc->sstamp = tuple_sstamp.offset();  // \pi
   #ifdef TAKADA
-      GetReadSet().emplace_back(tuple);   //readsetに追加
+      GetReadSet().emplace_back(tuple);   
   #endif
   } else {
     ASSERT(tuple_sstamp == NULL_PTR or
