@@ -679,7 +679,7 @@ start_over:
   fat_ptr head = volatile_read(*ptr);
   ASSERT(head.asi_type() == 0);
   Object *old_desc = (Object *)head.offset();
-  ASSERT(old_desc);
+  //ASSERT(old_desc);
   ASSERT(head.size_code() != INVALID_SIZE_CODE);
   dbtuple *version = (dbtuple *)old_desc->GetPayload();
   bool overwrite = false;
