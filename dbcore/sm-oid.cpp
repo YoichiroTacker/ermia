@@ -674,12 +674,14 @@ fat_ptr sm_oid_mgr::PrimaryTupleUpdate(oid_array *oa, OID o,
                                        TXN::xid_context *updater_xc,
                                        fat_ptr *new_obj_ptr) {
   ASSERT(!config::is_backup_srv() || (config::command_log && config::replay_threads));
-  auto *ptr = oa->get(o);
-start_over:
+  auto *ptr = oa->get(o);   //head pointer
+start_over:   //古いバージョンに書き込む場合ここからやりなおす
   fat_ptr head = volatile_read(*ptr);
   ASSERT(head.asi_type() == 0);
   Object *old_desc = (Object *)head.offset();
-  ASSERT(old_desc); //古いバージョンへのポインタが有効であることを確認する
+  if(!old_desc)
+    return NULL_PTR;
+  ASSERT(old_desc); //古いバージョンへのポインタがnot NULL？
   ASSERT(head.size_code() != INVALID_SIZE_CODE);
   dbtuple *version = (dbtuple *)old_desc->GetPayload();
   bool overwrite = false;
