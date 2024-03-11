@@ -43,6 +43,7 @@ if [ "$bench" == "tpcc" ]; then
   btype=${workload:4:1}
   wh_spread=0
   if [ "$btype" == "h" ]; then
+    wh_spread="100"
     suppliers_x=${workload:5}
     suppliers=`expr $suppliers_x \* 100`
     $options -benchmark_options "--workload-mix="40,38,0,4,4,4,10,0" --suppliers=$suppliers --warehouse-spread=$wh_spread $2"

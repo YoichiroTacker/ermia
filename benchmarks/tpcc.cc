@@ -2136,7 +2136,8 @@ rc_t tpcc_worker::txn_stock_level() {
 
 rc_t tpcc_worker::txn_query2() {
   ermia::transaction *txn =
-      db->NewTransaction(ermia::transaction::TXN_FLAG_READ_MOSTLY, arena, txn_buf());
+      //db->NewTransaction(ermia::transaction::TXN_FLAG_READ_MOSTLY, arena, txn_buf());
+      db->NewTransaction(ermia::transaction::TXN_FLAG_READ_ONLY, arena, txn_buf());
   ermia::scoped_str_arena s_arena(arena);
 
   static thread_local tpcc_table_scanner r_scanner(&arena);
@@ -2242,19 +2243,19 @@ rc_t tpcc_worker::txn_query2() {
 
         // XXX. read-mostly txn: update stock or item here
 
-        if (min_v_s.s_quantity < 15) {
-          stock::value new_v_s;
-          new_v_s.s_quantity = min_v_s.s_quantity + 50;
-          new_v_s.s_ytd = min_v_s.s_ytd;
-          new_v_s.s_order_cnt = min_v_s.s_order_cnt;
-          new_v_s.s_remote_cnt = min_v_s.s_remote_cnt;
+        //if (min_v_s.s_quantity < 15) {    //在庫レベルが15以下の時に在庫レベルを50更新
+        //  stock::value new_v_s;
+        //  new_v_s.s_quantity = min_v_s.s_quantity + 50;
+        //  new_v_s.s_ytd = min_v_s.s_ytd;
+        //  new_v_s.s_order_cnt = min_v_s.s_order_cnt;
+        //  new_v_s.s_remote_cnt = min_v_s.s_remote_cnt;
 #ifndef NDEBUG
-          checker::SanityCheckStock(&min_k_s);
+        //  checker::SanityCheckStock(&min_k_s);
 #endif
-          TryCatch(tbl_stock(min_k_s.s_w_id)
-                        ->Put(txn, Encode(str(Size(min_k_s)), min_k_s),
-                              Encode(str(Size(new_v_s)), new_v_s)));
-        }
+        //  TryCatch(tbl_stock(min_k_s.s_w_id)
+        //                ->Put(txn, Encode(str(Size(min_k_s)), min_k_s),
+        //                      Encode(str(Size(new_v_s)), new_v_s)));
+        //}
 
         // TODO. sorting by n_name, su_name, i_id
 

@@ -183,7 +183,7 @@ void ConcurrentMasstreeIndex::Get(transaction *t, rc_t &rc, const varstr &key,
     } else {
       volatile_write(rc._val, RC_FALSE);
     }
-    ASSERT(rc._val == RC_FALSE || rc._val == RC_TRUE);
+    ASSERT(rc._val == RC_FALSE || rc._val == RC_TRUE || rc._val ==RC_ABORT_SERIAL);
   }
 
   if (out_oid) {

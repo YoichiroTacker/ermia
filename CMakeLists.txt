@@ -76,6 +76,14 @@ add_executable(ermia_MVOCC ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/dbtest.cc)
 set_target_properties(ermia_MVOCC PROPERTIES COMPILE_FLAGS "-DMVOCC")
 target_link_libraries(ermia_MVOCC ermia_mvocc)
 
+#Proposed
+add_library(ermia_takada SHARED ${LIB_ERMIA_SRC})
+set_target_properties(ermia_takada PROPERTIES COMPILE_FLAGS "-DSSN -DTAKDA -DEARLY_SSN_CHECK")
+
+add_executable(ermia_TAKADA ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/dbtest.cc)
+set_target_properties(ermia_TAKADA PROPERTIES COMPILE_FLAGS "-DTAKADA -DEARLY_SSN_CHECK")
+target_link_libraries(ermia_TAKADA ermia_takada)
+
 # Benchmark scripts
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/run.sh" DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/run2.sh" DESTINATION ${CMAKE_BINARY_DIR})

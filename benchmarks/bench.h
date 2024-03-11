@@ -125,8 +125,11 @@ class bench_worker : public ermia::thread::Runner {
     std::string name;
     double frequency;
     txn_fn_t fn;
+  //#ifdef TAKADA
+  //  bool isretrying;
+  //#endif
   };
-  typedef std::vector<workload_desc> workload_desc_vec;
+  typedef std::vector<workload_desc> workload_desc_vec;   // CCBenchでいうところのtaskset
   virtual workload_desc_vec get_workload() const = 0;
   virtual cmdlog_redo_workload_desc_vec get_cmdlog_redo_workload() const = 0;
   workload_desc_vec workload;

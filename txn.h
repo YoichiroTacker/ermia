@@ -57,7 +57,12 @@ public:
 
 #if defined(SSN) || defined(SSI) || defined(MVOCC)
   typedef std::vector<dbtuple *> read_set_t;
+#if defined(TAKADA)
+    typedef std::vector<dbtuple *> validated_read_set_t; // 追加
+    typedef std::vector<dbtuple *> retrying_task_set_t;
 #endif
+#endif
+
 
   enum {
     // use the low-level scan protocol for checking scan consistency,
@@ -132,7 +137,47 @@ protected:
     thread_local read_set_t read_set;
     return read_set;
   }
+
+// 追加
+#if defined(TAKADA)
+    inline void add_to_validated_read_set(dbtuple *entry)
+    {
+      auto &read_set = GetReadSet();
+      for (uint32_t i = 0; i < read_set.size(); ++i)
+      {
+        auto &r = write_set[i];
+        ASSERT(w.entry);
+        ASSERT(w.entry != entry);
+      }
+      GetReadSet().emplace_back(entry);
+    }
+
+    inline read_set_t &GetValidatedReadSet()
+    {
+      thread_local read_set_t validated_read_set;
+      return validated_read_set;
+    }
+
+    inline read_set_t &GetRetryingTaskSet() {
+    thread_local read_set_t retrying_task_set;
+    return retrying_task_set;
+  }
+
+    inline void add_to_retrying_task_set(dbtuple *entry)
+    {
+      auto &retrying_set = GetRetryingTaskSet();
+      for (uint32_t i = 0; i < retrying_set.size(); ++i)
+      {
+        auto &r = write_set[i];
+        ASSERT(w.entry);
+        ASSERT(w.entry != entry);
+      }
+      GetRetryingTaskSet().emplace_back(entry);
+    }
+
 #endif
+#endif
+
 
   inline write_set_t &GetWriteSet() {
     thread_local write_set_t write_set;

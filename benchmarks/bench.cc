@@ -31,8 +31,8 @@ void bench_worker::do_workload_function(uint32_t i) {
 retry:
   util::timer t;
   const unsigned long old_seed = r.get_seed();
-  const auto ret = workload[i].fn(this);
-  if (finish_workload(ret, i, t)) {
+  const auto ret = workload[i].fn(this); //i番目のtaskを呼び出し、それに応じた関数ポインタを実行してretに格納する
+  if (finish_workload(ret, i, t)) {   //true=retry transaction
     r.set_seed(old_seed);
     goto retry;
   }
@@ -44,7 +44,7 @@ retry:
   util::timer t;
   const unsigned long old_seed = r.get_seed();
   const auto ret = cmdlog_redo_workload[i].fn(this, param);
-  if (finish_workload(ret, i, t)) {
+  if (finish_workload(ret, i, t)) {   //true=retry transaction
     r.set_seed(old_seed);
     goto retry;
   }
